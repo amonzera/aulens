@@ -18,9 +18,7 @@ class SubjectTimelinePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(subject.name),
-      ),
+      appBar: AppBar(title: Text(subject.name)),
       body: Consumer3<ScheduleProvider, NotesProvider, SettingsProvider>(
         builder: (context, schedule, notes, settings, _) {
           if (notes.loading) {

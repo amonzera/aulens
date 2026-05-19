@@ -14,6 +14,13 @@ class NotesService {
 
   Future<List<Note>> getNotes() => _db.getNotes();
 
+  Future<List<Note>> getNotesMetadata() => _db.getNotesMetadata();
+
+  Future<List<Note>> searchNotesInDb(String query) =>
+      _db.searchNotesInDb(query);
+
+  Future<Note?> getNoteById(int id) => _db.getNoteById(id);
+
   Future<int> createNote(Note note) => _db.insertNote(note);
 
   Future<int> updateNote(Note note) => _db.updateNote(note);

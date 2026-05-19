@@ -23,11 +23,29 @@ class NoteDetailPage extends StatefulWidget {
 class _NoteDetailPageState extends State<NoteDetailPage> {
   late Note _note;
   bool _updatingDetails = false;
+  bool _loadingText = false;
 
   @override
   void initState() {
     super.initState();
     _note = widget.note;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadFullNote();
+    });
+  }
+
+  Future<void> _loadFullNote() async {
+    if (_note.id == null) return;
+    setState(() => _loadingText = true);
+    final fullNote = await context.read<NotesProvider>().getNoteById(_note.id!);
+    if (fullNote != null && mounted) {
+      setState(() {
+        _note = fullNote;
+        _loadingText = false;
+      });
+    } else if (mounted) {
+      setState(() => _loadingText = false);
+    }
   }
 
   @override
@@ -38,12 +56,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     final subject = noteSubjectId != null
         ? schedule.subjectById(noteSubjectId)
         : null;
-    final subjectPhotos = (noteSubjectId != null
-            ? notesProvider.notesForSubject(noteSubjectId)
-            : notesProvider.unclassifiedNotes())
-        .where((n) => n.hasImage)
-        .toList()
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final subjectPhotos =
+        (noteSubjectId != null
+                ? notesProvider.notesForSubject(noteSubjectId)
+                : notesProvider.unclassifiedNotes())
+            .where((n) => n.hasImage)
+            .toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     final initialPhotoIndex = subjectPhotos.indexWhere((n) => n.id == _note.id);
     final galleryInitialIndex = initialPhotoIndex >= 0 ? initialPhotoIndex : 0;
     final theme = Theme.of(context);
@@ -57,9 +76,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               tooltip: 'Edit photo details',
-              onPressed: _updatingDetails
-                  ? null
-                  : _editPhotoDetails,
+              onPressed: _updatingDetails ? null : _editPhotoDetails,
             ),
           if (_note.hasImage)
             IconButton(
@@ -119,30 +136,43 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   // ── Metadata row ──────────────────────────────────────────
                   _MetaRow(
                     icon: Icons.schedule,
-                    text: DateFormat('EEEE, MMMM d, yyyy · HH:mm')
-                    .format(_note.createdAt),
+                    text: DateFormat(
+                      'EEEE, MMMM d, yyyy · HH:mm',
+                    ).format(_note.createdAt),
                   ),
                   if (subject != null) ...[
                     const SizedBox(height: 4),
-                    _MetaRow(
-                      icon: Icons.school_outlined,
-                      text: subject.name,
-                    ),
+                    _MetaRow(icon: Icons.school_outlined, text: subject.name),
                   ],
                   const SizedBox(height: 20),
 
                   if (_note.isTextNote) ...[
                     Text('Note', style: theme.textTheme.titleSmall),
                     const Divider(height: 12),
-                    SelectableText(
-                      _note.textContent ?? '',
-                      style: theme.textTheme.bodyMedium,
-                    ),
+                    if (_loadingText)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else
+                      SelectableText(
+                        _note.textContent ?? '',
+                        style: theme.textTheme.bodyMedium,
+                      ),
                   ] else ...[
                     // ── OCR text ─────────────────────────────────────────
                     Text('Extracted Text', style: theme.textTheme.titleSmall),
                     const Divider(height: 12),
-                    if (_note.ocrText != null)
+                    if (_loadingText)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_note.ocrText != null)
                       SelectableText(
                         _note.ocrText!,
                         style: theme.textTheme.bodyMedium,
@@ -214,51 +244,51 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     );
   }
 
-    Future<void> _moveToAnotherSubject() async {
-      final scheduleProvider = context.read<ScheduleProvider>();
-      final notesProvider = context.read<NotesProvider>();
+  Future<void> _moveToAnotherSubject() async {
+    final scheduleProvider = context.read<ScheduleProvider>();
+    final notesProvider = context.read<NotesProvider>();
 
-      final subjects = scheduleProvider.subjects
-          .where((s) => s.id != _note.subjectId)
-          .toList();
+    final subjects = scheduleProvider.subjects
+        .where((s) => s.id != _note.subjectId)
+        .toList();
 
-      if (subjects.isEmpty) {
-        AppSnackBar.showInfo(
-          context,
-          'No other subjects available to move this photo.',
-        );
-        return;
-      }
-
-      final target = await showModalBottomSheet<Subject>(
-        context: context,
-        showDragHandle: true,
-        builder: (_) => SafeArea(
-          child: ListView.builder(
-            itemCount: subjects.length,
-            itemBuilder: (context, index) {
-              final subject = subjects[index];
-              return ListTile(
-                leading: const Icon(Icons.school_outlined),
-                title: Text(subject.name),
-                onTap: () => Navigator.pop(context, subject),
-              );
-            },
-          ),
-        ),
+    if (subjects.isEmpty) {
+      AppSnackBar.showInfo(
+        context,
+        'No other subjects available to move this photo.',
       );
-
-      if (target == null || target.id == null || _note.id == null) return;
-
-      await notesProvider.moveNoteToSubject(
-        noteId: _note.id!,
-        targetSubjectId: target.id!,
-      );
-
-      if (!mounted) return;
-      setState(() => _note = _note.copyWith(subjectId: target.id));
-      AppSnackBar.showInfo(context, 'Photo moved to ${target.name}.');
+      return;
     }
+
+    final target = await showModalBottomSheet<Subject>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: ListView.builder(
+          itemCount: subjects.length,
+          itemBuilder: (context, index) {
+            final subject = subjects[index];
+            return ListTile(
+              leading: const Icon(Icons.school_outlined),
+              title: Text(subject.name),
+              onTap: () => Navigator.pop(context, subject),
+            );
+          },
+        ),
+      ),
+    );
+
+    if (target == null || target.id == null || _note.id == null) return;
+
+    await notesProvider.moveNoteToSubject(
+      noteId: _note.id!,
+      targetSubjectId: target.id!,
+    );
+
+    if (!mounted) return;
+    setState(() => _note = _note.copyWith(subjectId: target.id));
+    AppSnackBar.showInfo(context, 'Photo moved to ${target.name}.');
+  }
 
   Future<void> _editPhotoDetails() async {
     final notesProvider = context.read<NotesProvider>();
@@ -273,12 +303,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     }
 
     final ocrController = TextEditingController(text: _note.ocrText ?? '');
-    final extraNotesController =
-        TextEditingController(text: _note.textContent ?? '');
+    final extraNotesController = TextEditingController(
+      text: _note.textContent ?? '',
+    );
     Subject? selectedSubject =
-      (_note.subjectId != null
-        ? scheduleProvider.subjectById(_note.subjectId!)
-        : null) ??
+        (_note.subjectId != null
+            ? scheduleProvider.subjectById(_note.subjectId!)
+            : null) ??
         subjects.first;
     DateTime selectedDateTime = _note.createdAt;
 
@@ -331,8 +362,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       leading: const Icon(Icons.schedule_outlined),
                       title: const Text('Date and time'),
                       subtitle: Text(
-                        DateFormat('EEEE, MMMM d, yyyy · HH:mm')
-                            .format(selectedDateTime),
+                        DateFormat(
+                          'EEEE, MMMM d, yyyy · HH:mm',
+                        ).format(selectedDateTime),
                       ),
                       trailing: TextButton(
                         onPressed: () async {
@@ -345,10 +377,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                           if (date == null || !ctx.mounted) return;
                           final time = await showTimePicker(
                             context: ctx,
-                            initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+                            initialTime: TimeOfDay.fromDateTime(
+                              selectedDateTime,
+                            ),
                             builder: (context, child) => MediaQuery(
-                              data: MediaQuery.of(context)
-                                  .copyWith(alwaysUse24HourFormat: true),
+                              data: MediaQuery.of(
+                                context,
+                              ).copyWith(alwaysUse24HourFormat: true),
                               child: child!,
                             ),
                           );
@@ -470,10 +505,9 @@ class _MetaRow extends StatelessWidget {
         Flexible(
           child: Text(
             text,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
         ),
       ],

@@ -5,7 +5,6 @@ import '../../features/camera/services/camera_service.dart';
 import '../../features/notes/models/note.dart';
 import '../../features/notes/models/processing_note.dart';
 import '../../features/notes/services/notes_service.dart';
-import '../../features/search/services/search_service.dart';
 import '../../features/schedule/models/schedule_entry.dart';
 import '../../features/schedule/models/subject.dart';
 import '../../features/timeline/models/class_session.dart';
@@ -15,7 +14,6 @@ import '../../core/utils/time_utils.dart';
 /// Manages the in-memory list of notes and keeps it in sync with SQLite.
 class NotesProvider extends ChangeNotifier {
   final NotesService _notesService;
-  final SearchService _searchService;
 
   List<Note> _notes = [];
   final Map<String, ProcessingNote> _processingNotes = {};
@@ -29,7 +27,7 @@ class NotesProvider extends ChangeNotifier {
 
   bool _disposed = false;
 
-  NotesProvider(this._notesService, this._searchService) {
+  NotesProvider(this._notesService) {
     _taskSub = CameraService.instance.taskEvents.listen(_onTaskEvent);
     _load();
   }
@@ -37,10 +35,12 @@ class NotesProvider extends ChangeNotifier {
   Future<void> _load() async {
     _loading = true;
     _safeNotify();
-    _notes = await _notesService.getNotes();
+    _notes = await _notesService.getNotesMetadata();
     _loading = false;
     _safeNotify();
   }
+
+  Future<Note?> getNoteById(int id) => _notesService.getNoteById(id);
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
 
@@ -168,8 +168,8 @@ class NotesProvider extends ChangeNotifier {
   List<Note> notesForSubject(int subjectId) =>
       _notes.where((n) => n.subjectId == subjectId).toList();
 
-    /// Notes that are not assigned to any subject yet, newest first.
-    List<Note> unclassifiedNotes() =>
+  /// Notes that are not assigned to any subject yet, newest first.
+  List<Note> unclassifiedNotes() =>
       _notes.where((n) => n.subjectId == null).toList();
 
   /// Background-processing notes belonging to [subjectId], newest first.
@@ -181,10 +181,25 @@ class NotesProvider extends ChangeNotifier {
     return list;
   }
 
-  /// Case-insensitive full-text search over OCR text.
-  /// Returns an empty list when [query] is blank.
-  List<Note> searchNotes(String query) =>
-      _searchService.searchByOcrText(_notes, query);
+  List<Note>? _searchResults;
+  List<Note>? get searchResults => _searchResults;
+  int _searchVersion = 0;
+
+  Future<void> searchNotesAsync(String query) async {
+    final currentVersion = ++_searchVersion;
+    if (query.isEmpty) {
+      _searchResults = [];
+      _safeNotify();
+      return;
+    }
+    _searchResults = null; // null means loading
+    _safeNotify();
+    final results = await _notesService.searchNotesInDb(query);
+    if (_searchVersion == currentVersion) {
+      _searchResults = results;
+      _safeNotify();
+    }
+  }
 
   /// Builds class sessions for a subject using schedule entries and notes.
   List<ClassSession> sessionsForSubject({
@@ -205,7 +220,8 @@ class NotesProvider extends ChangeNotifier {
       ProcessingNote? processing,
     }) {
       final dateKey = _dateKey(date);
-      final entryKey = entry?.id?.toString() ??
+      final entryKey =
+          entry?.id?.toString() ??
           '${entry?.weekday ?? 0}-${entry?.startTime ?? 'na'}-${entry?.endTime ?? 'na'}';
       final key = isUnscheduled ? 'unscheduled-$dateKey' : '$entryKey-$dateKey';
 
@@ -256,11 +272,7 @@ class NotesProvider extends ChangeNotifier {
     // Add empty sessions for the current week schedule slots.
     for (final entry in scheduleEntries) {
       final date = TimeUtils.dateForWeekdayInCurrentWeek(entry.weekday);
-      addToSession(
-        date: date,
-        entry: entry,
-        isUnscheduled: false,
-      );
+      addToSession(date: date, entry: entry, isUnscheduled: false);
     }
 
     final list = sessions.values.map((bucket) {

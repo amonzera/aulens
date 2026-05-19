@@ -15,8 +15,10 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text('Class detection',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Class detection',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 12),
           _GraceSlider(
             title: 'Minutes before class',
@@ -36,10 +38,9 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'These windows expand the schedule time used for class detection.',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           Text('Photo storage', style: Theme.of(context).textTheme.titleMedium),

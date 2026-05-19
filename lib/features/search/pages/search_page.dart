@@ -30,8 +30,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final results = context.watch<NotesProvider>().searchNotes(_query);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Search')),
       body: Column(
@@ -49,12 +47,19 @@ class _SearchPageState extends State<SearchPage> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _ctrl.clear();
-                          setState(() => _query = '');
+                          setState(() {
+                            _query = '';
+                          });
+                          context.read<NotesProvider>().searchNotesAsync('');
                         },
                       ),
                     ]
                   : null,
-              onChanged: (v) => setState(() => _query = v.trim()),
+              onChanged: (v) {
+                final q = v.trim();
+                setState(() => _query = q);
+                context.read<NotesProvider>().searchNotesAsync(q);
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -62,16 +67,27 @@ class _SearchPageState extends State<SearchPage> {
           // ── Results ──────────────────────────────────────────────────────
           if (_query.isEmpty)
             const Expanded(child: _SearchHint())
-          else if (results.isEmpty)
-            Expanded(child: _NoResults(query: _query))
           else
             Expanded(
-              child: ListView.builder(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                itemCount: results.length,
-                itemBuilder: (context, i) =>
-                    _ResultCard(note: results[i], query: _query),
+              child: Consumer<NotesProvider>(
+                builder: (context, notesProvider, child) {
+                  final results = notesProvider.searchResults;
+                  if (results == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (results.isEmpty) {
+                    return _NoResults(query: _query);
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    itemCount: results.length,
+                    itemBuilder: (context, i) =>
+                        _ResultCard(note: results[i], query: _query),
+                  );
+                },
               ),
             ),
         ],
@@ -92,15 +108,17 @@ class _SearchHint extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.manage_search_outlined,
-              size: 64, color: cs.outlineVariant),
+          Icon(
+            Icons.manage_search_outlined,
+            size: 64,
+            color: cs.outlineVariant,
+          ),
           const SizedBox(height: 12),
           Text(
             'Type to search your notes',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -123,10 +141,9 @@ class _NoResults extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'No results for "$query"',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -146,10 +163,10 @@ class _ResultCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final subject = note.subjectId != null
-      ? context.watch<ScheduleProvider>().subjectById(note.subjectId!)
-      : null;
+        ? context.watch<ScheduleProvider>().subjectById(note.subjectId!)
+        : null;
     final dateStr = DateFormat('MMM d, yyyy').format(note.createdAt);
-    final textSource = note.textContent ?? note.ocrText;
+    final textSource = _bestSearchText(note, query);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -172,6 +189,7 @@ class _ResultCard extends StatelessWidget {
                     File(note.imagePath!),
                     width: 64,
                     height: 64,
+                    cacheWidth: 150,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       width: 64,
@@ -207,14 +225,18 @@ class _ResultCard extends StatelessWidget {
                     Row(
                       children: [
                         if (subject != null) ...[
-                          Icon(Icons.school_outlined,
-                              size: 13, color: cs.primary),
+                          Icon(
+                            Icons.school_outlined,
+                            size: 13,
+                            color: cs.primary,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               subject.name,
-                              style: theme.textTheme.labelMedium
-                                  ?.copyWith(color: cs.primary),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: cs.primary,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -222,8 +244,9 @@ class _ResultCard extends StatelessWidget {
                           const Spacer(),
                         Text(
                           dateStr,
-                          style: theme.textTheme.labelSmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -233,8 +256,9 @@ class _ResultCard extends StatelessWidget {
                     else
                       Text(
                         'No text available.',
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: cs.onSurfaceVariant),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                   ],
                 ),
@@ -245,6 +269,22 @@ class _ResultCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _bestSearchText(Note note, String query) {
+  final queryLower = query.toLowerCase();
+  final candidates = [
+    note.textContent,
+    note.ocrText,
+  ].whereType<String>().where((text) => text.trim().isNotEmpty).toList();
+
+  for (final text in candidates) {
+    if (text.toLowerCase().contains(queryLower)) {
+      return text;
+    }
+  }
+
+  return candidates.isEmpty ? null : candidates.first;
 }
 
 // ── Highlighted text widget ───────────────────────────────────────────────────
@@ -273,14 +313,16 @@ class _HighlightedText extends StatelessWidget {
       if (idx > start) {
         spans.add(TextSpan(text: text.substring(start, idx)));
       }
-      spans.add(TextSpan(
-        text: text.substring(idx, idx + query.length),
-        style: TextStyle(
-          backgroundColor: cs.primaryContainer,
-          color: cs.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
+      spans.add(
+        TextSpan(
+          text: text.substring(idx, idx + query.length),
+          style: TextStyle(
+            backgroundColor: cs.primaryContainer,
+            color: cs.onPrimaryContainer,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ));
+      );
       start = idx + query.length;
     }
 

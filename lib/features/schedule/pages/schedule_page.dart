@@ -55,10 +55,11 @@ class SchedulePage extends StatelessWidget {
           if (provider.subjects.isEmpty) {
             return _EmptyState(onAdd: () => _pushAddSubject(context));
           }
-          final unscheduledSubjects = provider.subjects
-              .where((s) => provider.entriesForSubject(s.id!).isEmpty)
-              .toList()
-            ..sort((a, b) => a.name.compareTo(b.name));
+          final unscheduledSubjects =
+              provider.subjects
+                  .where((s) => provider.entriesForSubject(s.id!).isEmpty)
+                  .toList()
+                ..sort((a, b) => a.name.compareTo(b.name));
 
           final weekdayItems = {
             for (var day = 1; day <= 7; day++) day: <_ScheduleBlockItem>[],
@@ -79,10 +80,7 @@ class SchedulePage extends StatelessWidget {
             final subject = provider.subjectById(entry.subjectId);
             if (subject == null) continue;
             weekdayItems[entry.weekday]!.add(
-              _ScheduleBlockItem(
-                subject: subject,
-                entry: entry,
-              ),
+              _ScheduleBlockItem(subject: subject, entry: entry),
             );
           }
 
@@ -96,9 +94,11 @@ class SchedulePage extends StatelessWidget {
                   items: unscheduledSubjects
                       .map((s) => _ScheduleBlockItem(subject: s))
                       .toList(),
-                  onOpenSubject: (subject) => _openSubjectTimeline(context, subject),
-                  onEditSubject: (subject) => _pushEditSubject(context, subject),
-                    onArchiveSubject: (subject) =>
+                  onOpenSubject: (subject) =>
+                      _openSubjectTimeline(context, subject),
+                  onEditSubject: (subject) =>
+                      _pushEditSubject(context, subject),
+                  onArchiveSubject: (subject) =>
                       _confirmArchiveSubject(context, provider, subject),
                   onDeleteSubject: (subject) =>
                       _confirmDeleteSubject(context, provider, subject),
@@ -119,10 +119,10 @@ class SchedulePage extends StatelessWidget {
                     _ScheduleGridSection(
                       items: items,
                       onOpenSubject: (subject) =>
-                        _openSubjectTimeline(context, subject),
+                          _openSubjectTimeline(context, subject),
                       onEditSubject: (subject) =>
                           _pushEditSubject(context, subject),
-                        onArchiveSubject: (subject) =>
+                      onArchiveSubject: (subject) =>
                           _confirmArchiveSubject(context, provider, subject),
                       onDeleteSubject: (subject) =>
                           _confirmDeleteSubject(context, provider, subject),
@@ -139,19 +139,19 @@ class SchedulePage extends StatelessWidget {
   }
 
   void _pushAddSubject(BuildContext context) => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AddSubjectPage()),
-      );
+    context,
+    MaterialPageRoute(builder: (_) => const AddSubjectPage()),
+  );
 
   void _openSettings(BuildContext context) => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SettingsPage()),
-      );
+    context,
+    MaterialPageRoute(builder: (_) => const SettingsPage()),
+  );
 
   void _openArchivedSubjects(BuildContext context) => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const ArchivedSubjectsPage()),
-      );
+    context,
+    MaterialPageRoute(builder: (_) => const ArchivedSubjectsPage()),
+  );
 
   Future<void> _openClassModeManual(BuildContext context) async {
     final scheduleProvider = context.read<ScheduleProvider>();
@@ -197,7 +197,9 @@ class SchedulePage extends StatelessWidget {
   void _openSubjectTimeline(BuildContext context, Subject subject) =>
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => SubjectTimelinePage(subject: subject)),
+        MaterialPageRoute(
+          builder: (_) => SubjectTimelinePage(subject: subject),
+        ),
       );
 
   void _confirmDeleteSubject(
@@ -286,16 +288,17 @@ class _EmptyState extends StatelessWidget {
           children: [
             Icon(Icons.school_outlined, size: 72, color: cs.outlineVariant),
             const SizedBox(height: 16),
-            Text('No subjects yet',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'No subjects yet',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               'Add your first subject and set up its weekly schedule.',
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: cs.onSurfaceVariant),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
@@ -331,9 +334,7 @@ class _SectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Text(
       title,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
+      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
     );
   }
 }
@@ -491,11 +492,7 @@ class _ScheduleBlockCard extends StatelessWidget {
               const Spacer(),
               Row(
                 children: [
-                  Icon(
-                    Icons.schedule,
-                    size: 14,
-                    color: cs.primary,
-                  ),
+                  Icon(Icons.schedule, size: 14, color: cs.primary),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(

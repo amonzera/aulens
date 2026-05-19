@@ -1,5 +1,5 @@
 # Launch Screen Assets
 
-You can customize the launch screen with your own desired assets by replacing the image files in this directory.
+This directory contains the iOS launch screen image assets for Aulens.
 
-You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
+To customize the launch screen, replace the image files in this directory or open `ios/Runner.xcworkspace` in Xcode and update `Runner/Assets.xcassets`.

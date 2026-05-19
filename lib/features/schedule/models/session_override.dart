@@ -13,15 +13,15 @@ class SessionOverride {
   });
 
   Map<String, dynamic> toMap() => {
-        'schedule_entry_id': scheduleEntryId,
-        'date': date,
-        'subject_id': subjectId,
-      };
+    'schedule_entry_id': scheduleEntryId,
+    'date': date,
+    'subject_id': subjectId,
+  };
 
   factory SessionOverride.fromMap(Map<String, dynamic> m) => SessionOverride(
-        id: m['id'] as int,
-        scheduleEntryId: m['schedule_entry_id'] as int,
-        date: m['date'] as String,
-        subjectId: m['subject_id'] as int,
-      );
+    id: m['id'] as int,
+    scheduleEntryId: m['schedule_entry_id'] as int,
+    date: m['date'] as String,
+    subjectId: m['subject_id'] as int,
+  );
 }

@@ -29,10 +29,12 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.subject?.name ?? '');
-    _professorCtrl =
-        TextEditingController(text: widget.subject?.professor ?? '');
-    _classroomCtrl =
-        TextEditingController(text: widget.subject?.classroom ?? '');
+    _professorCtrl = TextEditingController(
+      text: widget.subject?.professor ?? '',
+    );
+    _classroomCtrl = TextEditingController(
+      text: widget.subject?.classroom ?? '',
+    );
   }
 
   @override
@@ -104,7 +106,9 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => AddSubjectPage(subject: createdSubject)),
+      MaterialPageRoute(
+        builder: (_) => AddSubjectPage(subject: createdSubject),
+      ),
     );
   }
 
@@ -119,9 +123,10 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
   Widget build(BuildContext context) {
     final provider = context.watch<ScheduleProvider>();
     final editingSubject = widget.subject;
-    final List<ScheduleEntry> subjectEntries = editingSubject == null
-        ? <ScheduleEntry>[]
-        : provider.entriesForSubject(editingSubject.id!).toList()
+    final List<ScheduleEntry> subjectEntries =
+        editingSubject == null
+              ? <ScheduleEntry>[]
+              : provider.entriesForSubject(editingSubject.id!).toList()
           ..sort((a, b) {
             final byDay = a.weekday.compareTo(b.weekday);
             if (byDay != 0) return byDay;
@@ -145,10 +150,9 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                   hintText: 'e.g., Mathematics',
                   prefixIcon: Icon(Icons.school_outlined),
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty)
-                        ? 'Name cannot be empty'
-                        : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Name cannot be empty'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -189,8 +193,8 @@ class _AddSubjectPageState extends State<AddSubjectPage> {
                       child: Text(
                         'Schedule',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     TextButton.icon(

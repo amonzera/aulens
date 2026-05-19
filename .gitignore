@@ -1,6 +1,7 @@
 # Miscellaneous
 *.class
 *.log
+*.hprof
 *.pyc
 *.swp
 .DS_Store
@@ -32,6 +33,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/.dev/
+/android/build/
 
 # Symbolication related
 app.*.symbols

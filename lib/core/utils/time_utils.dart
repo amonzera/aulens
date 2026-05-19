@@ -84,7 +84,11 @@ class TimeUtils {
         continue;
       }
 
-      final distance = _distanceToInterval(time, entry.startTime, entry.endTime);
+      final distance = _distanceToInterval(
+        time,
+        entry.startTime,
+        entry.endTime,
+      );
       final startDistance = _distanceToStart(time, entry.startTime);
 
       if (best == null ||
@@ -124,12 +128,12 @@ class TimeUtils {
 
   /// Human-readable day name for a [DateTime.weekday] value (1 = Monday).
   static String weekdayName(int weekday) => const [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday',
-      ][(weekday - 1).clamp(0, 6)];
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ][(weekday - 1).clamp(0, 6)];
 }

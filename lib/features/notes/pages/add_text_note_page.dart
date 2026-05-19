@@ -28,9 +28,9 @@ class _AddTextNotePageState extends State<AddTextNotePage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     await context.read<NotesProvider>().addTextNote(
-          subjectId: widget.subject.id!,
-          textContent: _textCtrl.text,
-        );
+      subjectId: widget.subject.id!,
+      textContent: _textCtrl.text,
+    );
     if (mounted) Navigator.pop(context);
   }
 
@@ -53,10 +53,9 @@ class _AddTextNotePageState extends State<AddTextNotePage> {
                   hintText: 'Write your notes here...',
                   alignLabelWithHint: true,
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty)
-                        ? 'Note text cannot be empty'
-                        : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Note text cannot be empty'
+                    : null,
               ),
               const SizedBox(height: 24),
               SizedBox(

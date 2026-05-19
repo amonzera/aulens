@@ -29,6 +29,7 @@ class ScheduleProvider extends ChangeNotifier {
       _entries.where((entry) => activeIds.contains(entry.subjectId)),
     );
   }
+
   bool get loading => _loading;
 
   bool _disposed = false;
@@ -160,8 +161,7 @@ class ScheduleProvider extends ChangeNotifier {
       name: trimmed,
       professor: normalizedProfessor,
       classroom: normalizedClassroom,
-      isArchived:
-          subjectByIdIncludingArchived(id)?.isArchived ?? false,
+      isArchived: subjectByIdIncludingArchived(id)?.isArchived ?? false,
     );
     await _service.updateSubject(updated);
     _subjects = [
@@ -228,18 +228,14 @@ class ScheduleProvider extends ChangeNotifier {
   ScheduleEntry? getCurrentClass({
     int preGraceMinutes = AppConstants.sessionPreGraceMinutes,
     int postGraceMinutes = AppConstants.sessionPostGraceMinutes,
-  }) =>
-      TimeUtils.matchEntryForTimestamp(
-        entries,
-        DateTime.now(),
-        preGraceMinutes: preGraceMinutes,
-        postGraceMinutes: postGraceMinutes,
-      );
+  }) => TimeUtils.matchEntryForTimestamp(
+    entries,
+    DateTime.now(),
+    preGraceMinutes: preGraceMinutes,
+    postGraceMinutes: postGraceMinutes,
+  );
 
-  Subject? resolveSubjectForEntryOnDate(
-    ScheduleEntry entry,
-    DateTime date,
-  ) {
+  Subject? resolveSubjectForEntryOnDate(ScheduleEntry entry, DateTime date) {
     final key = _overrideKey(entry.id!, _dateKey(date));
     final override = _overrides[key];
     return subjectById(override?.subjectId ?? entry.subjectId);
@@ -264,7 +260,7 @@ class ScheduleProvider extends ChangeNotifier {
     _safeNotify();
   }
 
-    String _dateKey(DateTime date) =>
+  String _dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   String _overrideKey(int scheduleEntryId, String dateKey) =>

@@ -13,12 +13,7 @@ class AppSnackBar {
   }
 
   static void showError(BuildContext context, String message) {
-    _show(
-      context,
-      message,
-      icon: Icons.error_outline_rounded,
-      isError: true,
-    );
+    _show(context, message, icon: Icons.error_outline_rounded, isError: true);
   }
 
   static void _show(
@@ -54,10 +49,9 @@ class AppSnackBar {
                 child: Text(
                   message,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color:
-                            isError ? cs.onErrorContainer : cs.onInverseSurface,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    color: isError ? cs.onErrorContainer : cs.onInverseSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],

@@ -89,10 +89,7 @@ class _QuickTextNotePageState extends State<QuickTextNotePage> {
     setState(() => _saving = true);
 
     try {
-      await notesProvider.addTextNote(
-            subjectId: subjectId,
-            textContent: text,
-          );
+      await notesProvider.addTextNote(subjectId: subjectId, textContent: text);
 
       final detectedEntry = _detectedEntry;
       final detectedSubjectId = _detectedSubject?.id;
@@ -104,10 +101,10 @@ class _QuickTextNotePageState extends State<QuickTextNotePage> {
         final entryId = detectedEntry.id;
         if (entryId != null) {
           await scheduleProvider.setSessionOverride(
-                scheduleEntryId: entryId,
-                date: DateTime.now(),
-                subjectId: selectedSubjectId,
-              );
+            scheduleEntryId: entryId,
+            date: DateTime.now(),
+            subjectId: selectedSubjectId,
+          );
         }
       }
     } catch (_) {
@@ -153,18 +150,16 @@ class _QuickTextNotePageState extends State<QuickTextNotePage> {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   'Detected: ${_detectedSubject!.name}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ),
             DropdownButtonFormField<Subject>(
               initialValue: subjects.contains(_selectedSubject)
                   ? _selectedSubject
                   : (subjects.isNotEmpty ? subjects.first : null),
-              decoration: const InputDecoration(
-                labelText: 'Subject',
-              ),
+              decoration: const InputDecoration(labelText: 'Subject'),
               items: subjects
                   .map(
                     (subject) => DropdownMenuItem<Subject>(

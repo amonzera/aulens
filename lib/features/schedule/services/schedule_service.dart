@@ -47,12 +47,11 @@ class ScheduleService {
     required int scheduleEntryId,
     required String date,
     required int subjectId,
-  }) =>
-      _db.upsertSessionOverride(
-        scheduleEntryId: scheduleEntryId,
-        date: date,
-        subjectId: subjectId,
-      );
+  }) => _db.upsertSessionOverride(
+    scheduleEntryId: scheduleEntryId,
+    date: date,
+    subjectId: subjectId,
+  );
 
   Future<List<SessionOverride>> getSessionOverrides() async {
     final rows = await _db.getSessionOverrides();

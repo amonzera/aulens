@@ -56,9 +56,9 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
 
   Future<void> _save() async {
     if (_weekdays.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select at least one day.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Select at least one day.')));
       return;
     }
 
@@ -100,26 +100,23 @@ class _AddSchedulePageState extends State<AddSchedulePage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: List.generate(
-              7,
-              (i) {
-                final day = i + 1;
-                final selected = _weekdays.contains(day);
-                return FilterChip(
-                  label: Text(AppConstants.weekdayNames[i]),
-                  selected: selected,
-                  onSelected: (isSelected) {
-                    setState(() {
-                      if (isSelected) {
-                        _weekdays.add(day);
-                      } else {
-                        _weekdays.remove(day);
-                      }
-                    });
-                  },
-                );
-              },
-            ),
+            children: List.generate(7, (i) {
+              final day = i + 1;
+              final selected = _weekdays.contains(day);
+              return FilterChip(
+                label: Text(AppConstants.weekdayNames[i]),
+                selected: selected,
+                onSelected: (isSelected) {
+                  setState(() {
+                    if (isSelected) {
+                      _weekdays.add(day);
+                    } else {
+                      _weekdays.remove(day);
+                    }
+                  });
+                },
+              );
+            }),
           ),
           const SizedBox(height: 24),
 
@@ -197,12 +194,15 @@ class _TimeCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(label,
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            ),
             const SizedBox(height: 4),
-            Text('$h:$m',
-                style: const TextStyle(
-                    fontSize: 28, fontWeight: FontWeight.w600)),
+            Text(
+              '$h:$m',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
+            ),
           ],
         ),
       ),

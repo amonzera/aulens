@@ -1,10 +1,6 @@
 import 'package:permission_handler/permission_handler.dart';
 
-enum PermissionFlowResult {
-  granted,
-  denied,
-  permanentlyDenied,
-}
+enum PermissionFlowResult { granted, denied, permanentlyDenied }
 
 /// Handles runtime permissions required by camera capture flow.
 class PermissionService {

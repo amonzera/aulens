@@ -15,7 +15,6 @@ import 'features/schedule/services/schedule_service.dart';
 import 'features/schedule/models/subject.dart';
 import 'features/schedule/models/schedule_entry.dart';
 import 'features/search/pages/search_page.dart';
-import 'features/search/services/search_service.dart';
 import 'l10n/app_localizations.dart';
 import 'shared/services/settings_service.dart';
 import 'shared/database/database_service.dart';
@@ -44,20 +43,17 @@ class AulensApp extends StatelessWidget {
         Provider<NotesService>(
           create: (context) => NotesService(context.read<DatabaseService>()),
         ),
-        Provider<SearchService>(create: (_) => SearchService()),
         Provider<SettingsService>(create: (_) => SettingsService()),
         ChangeNotifierProvider(
-          create: (context) => ScheduleProvider(context.read<ScheduleService>()),
+          create: (context) =>
+              ScheduleProvider(context.read<ScheduleService>()),
         ),
         ChangeNotifierProvider(
           create: (context) =>
               SettingsProvider(context.read<SettingsService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => NotesProvider(
-            context.read<NotesService>(),
-            context.read<SearchService>(),
-          ),
+          create: (context) => NotesProvider(context.read<NotesService>()),
         ),
         ChangeNotifierProvider(create: (_) => ClassModeController()),
       ],
@@ -89,8 +85,7 @@ class _MainScreen extends StatefulWidget {
   State<_MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<_MainScreen>
-  with WidgetsBindingObserver {
+class _MainScreenState extends State<_MainScreen> with WidgetsBindingObserver {
   int _index = 0;
   Timer? _classModeTimer;
   bool _classModeCheckInProgress = false;
@@ -334,9 +329,9 @@ class _BottomBarItem extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: color,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
+                color: color,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -349,10 +344,7 @@ class _CenterCameraButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _CenterCameraButton({
-    required this.selected,
-    required this.onTap,
-  });
+  const _CenterCameraButton({required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -381,19 +373,15 @@ class _CenterCameraButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              Icons.camera_alt,
-              color: cs.onPrimary,
-              size: 28,
-            ),
+            child: Icon(Icons.camera_alt, color: cs.onPrimary, size: 28),
           ),
           const SizedBox(height: 2),
           Text(
             'Camera',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: cs.primary,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: cs.primary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -445,8 +433,9 @@ class _QuickNoteBottomSheetState extends State<_QuickNoteBottomSheet> {
         ? scheduleProvider.resolveSubjectForEntryOnDate(entry, now)
         : null;
 
-    final fallback =
-        scheduleProvider.subjects.isNotEmpty ? scheduleProvider.subjects.first : null;
+    final fallback = scheduleProvider.subjects.isNotEmpty
+        ? scheduleProvider.subjects.first
+        : null;
 
     setState(() {
       _detectedEntry = entry;
@@ -480,10 +469,7 @@ class _QuickNoteBottomSheetState extends State<_QuickNoteBottomSheet> {
     setState(() => _saving = true);
 
     try {
-      await notesProvider.addTextNote(
-        subjectId: subjectId,
-        textContent: text,
-      );
+      await notesProvider.addTextNote(subjectId: subjectId, textContent: text);
 
       final detectedEntry = _detectedEntry;
       final detectedSubjectId = _detectedSubject?.id;
@@ -524,29 +510,23 @@ class _QuickNoteBottomSheetState extends State<_QuickNoteBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Quick Note',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Quick Note', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             if (_detectedSubject != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(
                   'Detected: ${_detectedSubject!.name}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: cs.onSurfaceVariant),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
               ),
             DropdownButtonFormField<Subject>(
               initialValue: subjects.contains(_selectedSubject)
                   ? _selectedSubject
                   : (subjects.isNotEmpty ? subjects.first : null),
-              decoration: const InputDecoration(
-                labelText: 'Subject',
-              ),
+              decoration: const InputDecoration(labelText: 'Subject'),
               items: subjects
                   .map(
                     (subject) => DropdownMenuItem<Subject>(

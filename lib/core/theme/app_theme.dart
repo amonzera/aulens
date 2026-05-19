@@ -111,18 +111,26 @@ class AppTheme {
       dividerColor: divider,
     );
 
-    final textTheme = base.textTheme.apply(
-      bodyColor: scheme.onSurface,
-      displayColor: scheme.onSurface,
-      fontFamily: 'sans-serif',
-    ).copyWith(
-      bodyLarge: base.textTheme.bodyLarge?.copyWith(height: 1.45),
-      bodyMedium: base.textTheme.bodyMedium?.copyWith(height: 1.45),
-      bodySmall: base.textTheme.bodySmall?.copyWith(height: 1.4),
-      titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-      titleMedium: base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-      labelLarge: base.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-    );
+    final textTheme = base.textTheme
+        .apply(
+          bodyColor: scheme.onSurface,
+          displayColor: scheme.onSurface,
+          fontFamily: 'sans-serif',
+        )
+        .copyWith(
+          bodyLarge: base.textTheme.bodyLarge?.copyWith(height: 1.45),
+          bodyMedium: base.textTheme.bodyMedium?.copyWith(height: 1.45),
+          bodySmall: base.textTheme.bodySmall?.copyWith(height: 1.4),
+          titleLarge: base.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          titleMedium: base.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+          labelLarge: base.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        );
 
     return base.copyWith(
       textTheme: textTheme,
@@ -148,7 +156,10 @@ class AppTheme {
         isDense: true,
         filled: true,
         fillColor: scheme.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: scheme.outlineVariant),

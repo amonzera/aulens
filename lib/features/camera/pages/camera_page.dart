@@ -21,11 +21,7 @@ class CameraPage extends StatefulWidget {
   final bool autoCapture;
   final Subject? fixedSubject;
 
-  const CameraPage({
-    super.key,
-    this.autoCapture = false,
-    this.fixedSubject,
-  });
+  const CameraPage({super.key, this.autoCapture = false, this.fixedSubject});
 
   @override
   State<CameraPage> createState() => _CameraPageState();
@@ -59,8 +55,8 @@ class _CameraPageState extends State<CameraPage> {
     final scheduleProvider = context.read<ScheduleProvider>();
     final settings = context.read<SettingsProvider>();
 
-    final permissionResult =
-        await PermissionService.instance.ensureCameraFlowPermissions();
+    final permissionResult = await PermissionService.instance
+        .ensureCameraFlowPermissions();
     if (!mounted) return;
 
     if (permissionResult == PermissionFlowResult.denied) {
@@ -102,10 +98,7 @@ class _CameraPageState extends State<CameraPage> {
       postGraceMinutes: settings.postGraceMinutes,
     );
     final detected = entry != null
-        ? scheduleProvider.resolveSubjectForEntryOnDate(
-            entry,
-            now,
-          )
+        ? scheduleProvider.resolveSubjectForEntryOnDate(entry, now)
         : null;
     final subject = widget.fixedSubject ?? detected;
 
@@ -181,9 +174,9 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void _resetToIdle() => setState(() {
-        _state = _CaptureState.idle;
-        _saving = false;
-      });
+    _state = _CaptureState.idle;
+    _saving = false;
+  });
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -223,10 +216,9 @@ class _IdleView extends StatelessWidget {
             'The app will detect your current class\n'
             'and extract the text automatically.',
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 40),
           FloatingActionButton.large(

@@ -19,8 +19,8 @@ class NotesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Notes')),
-      body: Consumer2<ScheduleProvider, NotesProvider>(
-        builder: (context, schedule, notes, _) {
+      body: Consumer3<ScheduleProvider, NotesProvider, SettingsProvider>(
+        builder: (context, schedule, notes, settings, _) {
           if (notes.loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -35,30 +35,28 @@ class NotesPage extends StatelessWidget {
 
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            itemCount: schedule.subjects.length + (unclassified.isNotEmpty ? 1 : 0),
+            itemCount:
+                schedule.subjects.length + (unclassified.isNotEmpty ? 1 : 0),
             itemBuilder: (context, i) {
               if (unclassified.isNotEmpty && i == 0) {
                 return _UnclassifiedExpansion(notes: unclassified);
               }
 
               final subjectIndex = unclassified.isNotEmpty ? i - 1 : i;
-              if (subjectIndex < 0 || subjectIndex >= schedule.subjects.length) {
+              if (subjectIndex < 0 ||
+                  subjectIndex >= schedule.subjects.length) {
                 return const SizedBox.shrink();
               }
 
               final subject = schedule.subjects[subjectIndex];
               final entries = schedule.entriesForSubject(subject.id!);
-              final settings = context.watch<SettingsProvider>();
               final sessions = notes.sessionsForSubject(
                 subject: subject,
                 scheduleEntries: entries,
                 preGraceMinutes: settings.preGraceMinutes,
                 postGraceMinutes: settings.postGraceMinutes,
               );
-              return _SubjectExpansion(
-                subject: subject,
-                sessions: sessions,
-              );
+              return _SubjectExpansion(subject: subject, sessions: sessions);
             },
           );
         },
@@ -81,20 +79,24 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.photo_library_outlined,
-                size: 72, color: cs.outlineVariant),
+            Icon(
+              Icons.photo_library_outlined,
+              size: 72,
+              color: cs.outlineVariant,
+            ),
             const SizedBox(height: 16),
-            Text('No notes yet',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'No notes yet',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Text(
               'Capture whiteboard photos from the Camera tab\n'
               'to start building your collection.',
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: cs.onSurfaceVariant),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
           ],
         ),
@@ -109,10 +111,7 @@ class _SubjectExpansion extends StatelessWidget {
   final Subject subject;
   final List<ClassSession> sessions;
 
-  const _SubjectExpansion({
-    required this.subject,
-    required this.sessions,
-  });
+  const _SubjectExpansion({required this.subject, required this.sessions});
 
   @override
   Widget build(BuildContext context) {
@@ -220,11 +219,16 @@ class _UnclassifiedExpansion extends StatelessWidget {
   List<ClassSession> _buildUnclassifiedSessions(List<Note> source) {
     if (source.isEmpty) return const <ClassSession>[];
 
-    final ordered = [...source]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final ordered = [...source]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     final byDate = <DateTime, List<Note>>{};
 
     for (final note in ordered) {
-      final day = DateTime(note.createdAt.year, note.createdAt.month, note.createdAt.day);
+      final day = DateTime(
+        note.createdAt.year,
+        note.createdAt.month,
+        note.createdAt.day,
+      );
       byDate.putIfAbsent(day, () => <Note>[]).add(note);
     }
 

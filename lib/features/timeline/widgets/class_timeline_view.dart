@@ -26,15 +26,15 @@ class ClassTimelineView extends StatelessWidget {
       return const _EmptyClassNotes();
     }
 
-    return Column(
-      children: [
-        for (var i = 0; i < sessions.length; i++)
-          _SessionCard(
-            session: sessions[i],
-            onNoteTap: onNoteTap,
-            initiallyExpanded: autoExpandMostRecent && i == 0,
-          ),
-      ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sessions.length,
+      itemBuilder: (context, i) => _SessionCard(
+        session: sessions[i],
+        onNoteTap: onNoteTap,
+        initiallyExpanded: autoExpandMostRecent && i == 0,
+      ),
     );
   }
 }
@@ -65,9 +65,11 @@ class _SessionCard extends StatelessWidget {
     final photoNotesCount = sortedNotes.where((n) => n.hasImage).length;
     final textNotesCount = sortedNotes.where((n) => n.isTextNote).length;
     final totalNotesCount = sortedNotes.length;
-    final summaryLabel = '$totalNotesCount note${totalNotesCount == 1 ? '' : 's'}';
-    final failedProcessing =
-        session.processingNotes.where((p) => p.failed).toList(growable: false);
+    final summaryLabel =
+        '$totalNotesCount note${totalNotesCount == 1 ? '' : 's'}';
+    final failedProcessing = session.processingNotes
+        .where((p) => p.failed)
+        .toList(growable: false);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 8, 8, 12),
@@ -88,11 +90,15 @@ class _SessionCard extends StatelessWidget {
           leading: Icon(Icons.event_note, size: 16, color: cs.primary),
           title: Text(
             dateLabel,
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           subtitle: Text(
             '$timeLabel  •  $summaryLabel',
-            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
           ),
           children: [
             const SizedBox(height: 4),
@@ -102,15 +108,18 @@ class _SessionCard extends StatelessWidget {
               children: [
                 _CountChip(
                   icon: Icons.photo_library_outlined,
-                  label: '$photoNotesCount photo${photoNotesCount == 1 ? '' : 's'}',
+                  label:
+                      '$photoNotesCount photo${photoNotesCount == 1 ? '' : 's'}',
                 ),
                 _CountChip(
                   icon: Icons.notes_outlined,
-                  label: '$textNotesCount text note${textNotesCount == 1 ? '' : 's'}',
+                  label:
+                      '$textNotesCount text note${textNotesCount == 1 ? '' : 's'}',
                 ),
                 _CountChip(
                   icon: Icons.view_timeline_outlined,
-                  label: '${groupedNotes.length} group${groupedNotes.length == 1 ? '' : 's'}',
+                  label:
+                      '${groupedNotes.length} group${groupedNotes.length == 1 ? '' : 's'}',
                 ),
               ],
             ),
@@ -119,7 +128,8 @@ class _SessionCard extends StatelessWidget {
               _SectionTitle(title: 'Grouped Notes'),
               const SizedBox(height: 8),
               ...groupedNotes.map(
-                (group) => _GroupedNotesCard(group: group, onNoteTap: onNoteTap),
+                (group) =>
+                    _GroupedNotesCard(group: group, onNoteTap: onNoteTap),
               ),
             ],
             if (groupedNotes.isEmpty && failedProcessing.isEmpty)
@@ -127,8 +137,9 @@ class _SessionCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   'No notes in this session.',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: cs.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
               ),
             if (failedProcessing.isNotEmpty) ...[
@@ -169,12 +180,7 @@ List<_NoteGroup> _collectGroupedNotes(List<Note> notes) {
       }
     }
 
-    groups.add(
-      _NoteGroup(
-        timestamp: grouped.first.createdAt,
-        notes: grouped,
-      ),
-    );
+    groups.add(_NoteGroup(timestamp: grouped.first.createdAt, notes: grouped));
 
     i = j;
   }
@@ -209,9 +215,9 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
     );
   }
 }
@@ -236,10 +242,7 @@ class _CountChip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: cs.onSurfaceVariant),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
         ],
       ),
     );
@@ -262,8 +265,12 @@ class _GroupedNotesCard extends StatelessWidget {
     final cover = group.coverImagePath;
 
     final countParts = <String>[];
-    if (photoCount > 0) countParts.add('$photoCount photo${photoCount == 1 ? '' : 's'}');
-    if (textCount > 0) countParts.add('$textCount text${textCount == 1 ? '' : 's'}');
+    if (photoCount > 0) {
+      countParts.add('$photoCount photo${photoCount == 1 ? '' : 's'}');
+    }
+    if (textCount > 0) {
+      countParts.add('$textCount text${textCount == 1 ? '' : 's'}');
+    }
     final summary = countParts.isEmpty
         ? '$count item${count == 1 ? '' : 's'}'
         : countParts.join(' • ');
@@ -289,8 +296,10 @@ class _GroupedNotesCard extends StatelessWidget {
                     File(cover),
                     width: 64,
                     height: 64,
+                    cacheWidth: 150,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _FallbackThumb(icon: Icons.broken_image_outlined),
+                    errorBuilder: (_, __, ___) =>
+                        _FallbackThumb(icon: Icons.broken_image_outlined),
                   ),
                 )
               else
@@ -400,10 +409,9 @@ class _EmptyClassNotes extends StatelessWidget {
             Text(
               'No sessions yet. Tap the camera or add a text note to start.',
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: cs.onSurfaceVariant),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ],
         ),

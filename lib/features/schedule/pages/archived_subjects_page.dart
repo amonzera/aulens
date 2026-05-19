@@ -187,10 +187,7 @@ class _ArchivedSubjectCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onDelete,
                   icon: Icon(Icons.delete_outline, color: cs.error, size: 18),
-                  label: Text(
-                    'Delete',
-                    style: TextStyle(color: cs.error),
-                  ),
+                  label: Text('Delete', style: TextStyle(color: cs.error)),
                 ),
               ],
             ),
@@ -216,10 +213,7 @@ class _ArchivedEmptyState extends StatelessWidget {
           children: [
             Icon(Icons.archive_outlined, size: 64, color: cs.outlineVariant),
             const SizedBox(height: 14),
-            Text(
-              'No archived subjects',
-              style: theme.textTheme.titleMedium,
-            ),
+            Text('No archived subjects', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
               'Archived subjects will appear here for restore or permanent deletion.',

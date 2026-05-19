@@ -36,10 +36,7 @@ class _ClassModePageState extends State<ClassModePage> {
     final entry = widget.scheduleEntry;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Class Mode'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Class Mode'), centerTitle: true),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -52,8 +49,9 @@ class _ClassModePageState extends State<ClassModePage> {
                   Text(
                     _selectedSubject.name,
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   if (_selectedSubject.professor != null &&
                       _selectedSubject.professor!.trim().isNotEmpty)
@@ -62,8 +60,9 @@ class _ClassModePageState extends State<ClassModePage> {
                       child: Text(
                         'Prof. ${_selectedSubject.professor}',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(color: cs.onSurfaceVariant),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   if (_selectedSubject.classroom != null &&
@@ -73,8 +72,9 @@ class _ClassModePageState extends State<ClassModePage> {
                       child: Text(
                         'Room ${_selectedSubject.classroom}',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(color: cs.onSurfaceVariant),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   Padding(
@@ -121,7 +121,10 @@ class _ClassModePageState extends State<ClassModePage> {
                       labelText: 'Subject',
                     ),
                     items: widget.subjects
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s.name)))
+                        .map(
+                          (s) =>
+                              DropdownMenuItem(value: s, child: Text(s.name)),
+                        )
                         .toList(),
                     onChanged: (s) {
                       if (s == null) return;
@@ -165,7 +168,8 @@ class _ClassModePageState extends State<ClassModePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => AddTextNotePage(subject: _selectedSubject),
+                            builder: (_) =>
+                                AddTextNotePage(subject: _selectedSubject),
                           ),
                         );
                       },
@@ -175,8 +179,9 @@ class _ClassModePageState extends State<ClassModePage> {
                   Text(
                     'Captured notes are saved to this subject and class session.',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: cs.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

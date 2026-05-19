@@ -1,5 +1,7 @@
 enum NoteType { photo, text }
 
+const Object _unset = Object();
+
 extension NoteTypeDb on NoteType {
   static NoteType fromDb(String value) {
     switch (value) {
@@ -46,45 +48,48 @@ class Note {
   bool get isTextNote => noteType == NoteType.text;
 
   Note copyWith({
-    int? id,
-    int? subjectId,
+    Object? id = _unset,
+    Object? subjectId = _unset,
     NoteType? noteType,
-    String? imagePath,
-    String? ocrText,
-    String? textContent,
+    Object? imagePath = _unset,
+    Object? ocrText = _unset,
+    Object? textContent = _unset,
     DateTime? createdAt,
-  }) =>
-      Note(
-        id: id ?? this.id,
-        subjectId: subjectId ?? this.subjectId,
-        noteType: noteType ?? this.noteType,
-        imagePath: imagePath ?? this.imagePath,
-        ocrText: ocrText ?? this.ocrText,
-        textContent: textContent ?? this.textContent,
-        createdAt: createdAt ?? this.createdAt,
-      );
+  }) => Note(
+    id: identical(id, _unset) ? this.id : id as int?,
+    subjectId: identical(subjectId, _unset)
+        ? this.subjectId
+        : subjectId as int?,
+    noteType: noteType ?? this.noteType,
+    imagePath: identical(imagePath, _unset)
+        ? this.imagePath
+        : imagePath as String?,
+    ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
+    textContent: identical(textContent, _unset)
+        ? this.textContent
+        : textContent as String?,
+    createdAt: createdAt ?? this.createdAt,
+  );
 
   /// Used for DB inserts – `id` is excluded as it is AUTOINCREMENT.
   Map<String, dynamic> toMap() => {
-        'subject_id': subjectId,
-        'note_type': noteType.dbValue,
-        'image_path': imagePath,
-        'ocr_text': ocrText,
-        'text_content': textContent,
-        'created_at': createdAt.toIso8601String(),
-      };
+    'subject_id': subjectId,
+    'note_type': noteType.dbValue,
+    'image_path': imagePath,
+    'ocr_text': ocrText,
+    'text_content': textContent,
+    'created_at': createdAt.toIso8601String(),
+  };
 
   factory Note.fromMap(Map<String, dynamic> m) => Note(
-        id: m['id'] as int,
-        subjectId: m['subject_id'] as int?,
-        noteType: NoteTypeDb.fromDb(
-          (m['note_type'] as String?) ?? 'photo',
-        ),
-        imagePath: m['image_path'] as String?,
-        ocrText: m['ocr_text'] as String?,
-        textContent: m['text_content'] as String?,
-        createdAt: DateTime.parse(m['created_at'] as String),
-      );
+    id: m['id'] as int,
+    subjectId: m['subject_id'] as int?,
+    noteType: NoteTypeDb.fromDb((m['note_type'] as String?) ?? 'photo'),
+    imagePath: m['image_path'] as String?,
+    ocrText: m['ocr_text'] as String?,
+    textContent: m['text_content'] as String?,
+    createdAt: DateTime.parse(m['created_at'] as String),
+  );
 
   @override
   String toString() =>

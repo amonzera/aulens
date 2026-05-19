@@ -26,30 +26,29 @@ class ScheduleEntry {
     int? weekday,
     String? startTime,
     String? endTime,
-  }) =>
-      ScheduleEntry(
-        id: id ?? this.id,
-        subjectId: subjectId ?? this.subjectId,
-        weekday: weekday ?? this.weekday,
-        startTime: startTime ?? this.startTime,
-        endTime: endTime ?? this.endTime,
-      );
+  }) => ScheduleEntry(
+    id: id ?? this.id,
+    subjectId: subjectId ?? this.subjectId,
+    weekday: weekday ?? this.weekday,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+  );
 
   /// Used for DB inserts – `id` is excluded as it is AUTOINCREMENT.
   Map<String, dynamic> toMap() => {
-        'subject_id': subjectId,
-        'weekday': weekday,
-        'start_time': startTime,
-        'end_time': endTime,
-      };
+    'subject_id': subjectId,
+    'weekday': weekday,
+    'start_time': startTime,
+    'end_time': endTime,
+  };
 
   factory ScheduleEntry.fromMap(Map<String, dynamic> m) => ScheduleEntry(
-        id: m['id'] as int,
-        subjectId: m['subject_id'] as int,
-        weekday: m['weekday'] as int,
-        startTime: m['start_time'] as String,
-        endTime: m['end_time'] as String,
-      );
+    id: m['id'] as int,
+    subjectId: m['subject_id'] as int,
+    weekday: m['weekday'] as int,
+    startTime: m['start_time'] as String,
+    endTime: m['end_time'] as String,
+  );
 
   @override
   String toString() =>

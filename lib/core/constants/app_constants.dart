@@ -4,7 +4,7 @@ class AppConstants {
 
   static const String appName = 'Aulens';
   static const String dbName = 'aulens.db';
-  static const int dbVersion = 5;
+  static const int dbVersion = 8;
 
   /// Subdirectory inside application documents for persisted note images.
   static const String imagesDirName = 'aulens_images';

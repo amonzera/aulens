@@ -38,11 +38,11 @@ class PdfExportService {
       final textLabel = note.isTextNote ? 'Note' : 'OCR Text';
       final textBody = note.isTextNote
           ? (note.textContent == null || note.textContent!.trim().isEmpty)
-              ? 'No text available.'
-              : note.textContent!
+                ? 'No text available.'
+                : note.textContent!
           : (note.ocrText == null || note.ocrText!.trim().isEmpty)
-              ? 'No extracted text.'
-              : note.ocrText!;
+          ? 'No extracted text.'
+          : note.ocrText!;
       noteWidgets.add(
         pw.Container(
           margin: const pw.EdgeInsets.only(bottom: 14),
@@ -73,10 +73,7 @@ class PdfExportService {
                 ),
               ),
               pw.SizedBox(height: 4),
-              pw.Text(
-                textBody,
-                style: const pw.TextStyle(fontSize: 10),
-              ),
+              pw.Text(textBody, style: const pw.TextStyle(fontSize: 10)),
             ],
           ),
         ),
@@ -90,15 +87,17 @@ class PdfExportService {
         build: (context) => [
           pw.Text(
             'Aulens - Class Timeline Export',
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 6),
-          pw.Text('Subject: $subjectName', style: const pw.TextStyle(fontSize: 12)),
-          pw.Text('Generated at: ${dateFmt.format(now)}',
-              style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+          pw.Text(
+            'Subject: $subjectName',
+            style: const pw.TextStyle(fontSize: 12),
+          ),
+          pw.Text(
+            'Generated at: ${dateFmt.format(now)}',
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+          ),
           pw.SizedBox(height: 12),
           if (notes.isEmpty)
             pw.Container(
@@ -185,10 +184,7 @@ class PdfExportService {
       height: 120,
       alignment: pw.Alignment.center,
       color: PdfColors.grey200,
-      child: pw.Text(
-        text,
-        style: const pw.TextStyle(color: PdfColors.grey700),
-      ),
+      child: pw.Text(text, style: const pw.TextStyle(color: PdfColors.grey700)),
     );
   }
 

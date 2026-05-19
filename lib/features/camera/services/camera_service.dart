@@ -6,13 +6,7 @@ import 'package:gal/gal.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-enum CameraTaskStatus {
-  queued,
-  processingOcr,
-  savingNote,
-  completed,
-  failed,
-}
+enum CameraTaskStatus { queued, processingOcr, savingNote, completed, failed }
 
 class CameraTaskEvent {
   final String taskId;
@@ -86,22 +80,26 @@ class CameraService {
   }) {
     final taskId = DateTime.now().microsecondsSinceEpoch.toString();
 
-    _emit(CameraTaskEvent(
-      taskId: taskId,
-      subjectId: subjectId,
-      imagePath: imagePath,
-      createdAt: createdAt,
-      status: CameraTaskStatus.queued,
-    ));
+    _emit(
+      CameraTaskEvent(
+        taskId: taskId,
+        subjectId: subjectId,
+        imagePath: imagePath,
+        createdAt: createdAt,
+        status: CameraTaskStatus.queued,
+      ),
+    );
 
-    unawaited(_runTask(
-      taskId: taskId,
-      subjectId: subjectId,
-      imagePath: imagePath,
-      createdAt: createdAt,
-      runOcr: runOcr,
-      saveNote: saveNote,
-    ));
+    unawaited(
+      _runTask(
+        taskId: taskId,
+        subjectId: subjectId,
+        imagePath: imagePath,
+        createdAt: createdAt,
+        runOcr: runOcr,
+        saveNote: saveNote,
+      ),
+    );
 
     return taskId;
   }
@@ -115,44 +113,52 @@ class CameraService {
     required Future<void> Function(String? ocrText) saveNote,
   }) async {
     try {
-      _emit(CameraTaskEvent(
-        taskId: taskId,
-        subjectId: subjectId,
-        imagePath: imagePath,
-        createdAt: createdAt,
-        status: CameraTaskStatus.processingOcr,
-      ));
+      _emit(
+        CameraTaskEvent(
+          taskId: taskId,
+          subjectId: subjectId,
+          imagePath: imagePath,
+          createdAt: createdAt,
+          status: CameraTaskStatus.processingOcr,
+        ),
+      );
 
       final ocrText = await runOcr(imagePath);
 
-      _emit(CameraTaskEvent(
-        taskId: taskId,
-        subjectId: subjectId,
-        imagePath: imagePath,
-        createdAt: createdAt,
-        status: CameraTaskStatus.savingNote,
-        ocrText: ocrText,
-      ));
+      _emit(
+        CameraTaskEvent(
+          taskId: taskId,
+          subjectId: subjectId,
+          imagePath: imagePath,
+          createdAt: createdAt,
+          status: CameraTaskStatus.savingNote,
+          ocrText: ocrText,
+        ),
+      );
 
       await saveNote(ocrText);
 
-      _emit(CameraTaskEvent(
-        taskId: taskId,
-        subjectId: subjectId,
-        imagePath: imagePath,
-        createdAt: createdAt,
-        status: CameraTaskStatus.completed,
-        ocrText: ocrText,
-      ));
+      _emit(
+        CameraTaskEvent(
+          taskId: taskId,
+          subjectId: subjectId,
+          imagePath: imagePath,
+          createdAt: createdAt,
+          status: CameraTaskStatus.completed,
+          ocrText: ocrText,
+        ),
+      );
     } catch (e) {
-      _emit(CameraTaskEvent(
-        taskId: taskId,
-        subjectId: subjectId,
-        imagePath: imagePath,
-        createdAt: createdAt,
-        status: CameraTaskStatus.failed,
-        error: e,
-      ));
+      _emit(
+        CameraTaskEvent(
+          taskId: taskId,
+          subjectId: subjectId,
+          imagePath: imagePath,
+          createdAt: createdAt,
+          status: CameraTaskStatus.failed,
+          error: e,
+        ),
+      );
     }
   }
 

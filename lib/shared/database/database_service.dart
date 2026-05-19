@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../features/notes/models/note.dart';
 import '../../features/schedule/models/schedule_entry.dart';
 import '../../features/schedule/models/subject.dart';
+import '../../core/constants/app_constants.dart';
 
 /// Singleton SQLite service for Aulens.
 ///
@@ -19,8 +20,8 @@ class DatabaseService {
   factory DatabaseService() => _instance;
   DatabaseService._();
 
-  static const String _dbName = 'aulens.db';
-  static const int _dbVersion = 8;
+  static const String _dbName = AppConstants.dbName;
+  static const int _dbVersion = AppConstants.dbVersion;
 
   static const String _subjectsTable = 'subjects';
   static const String _scheduleTable = 'schedule';
@@ -431,6 +432,38 @@ class DatabaseService {
   Future<List<Note>> getNotes() async {
     final db = await database;
     final rows = await db.query(_notesTable, orderBy: 'created_at DESC');
+    return rows.map(Note.fromMap).toList();
+  }
+
+  Future<List<Note>> getNotesMetadata() async {
+    final db = await database;
+    final rows = await db.query(
+      _notesTable,
+      columns: ['id', 'subject_id', 'note_type', 'image_path', 'created_at'],
+      orderBy: 'created_at DESC',
+    );
+    return rows.map(Note.fromMap).toList();
+  }
+
+  Future<List<Note>> searchNotesInDb(String query) async {
+    if (query.isEmpty) return [];
+    final db = await database;
+    final q = '%$query%';
+    final rows = await db.query(
+      _notesTable,
+      columns: [
+        'id',
+        'subject_id',
+        'note_type',
+        'image_path',
+        'ocr_text',
+        'text_content',
+        'created_at',
+      ],
+      where: 'ocr_text LIKE ? OR text_content LIKE ?',
+      whereArgs: [q, q],
+      orderBy: 'created_at DESC',
+    );
     return rows.map(Note.fromMap).toList();
   }
 
